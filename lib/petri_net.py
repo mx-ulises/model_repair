@@ -104,7 +104,7 @@ class PetriNet(object):
         if transition not in self._transitions:
             err_message = "Transition is not in T"
             raise PetriNetException(err_message)
-        if not isinstance(value, int) or value = 0:
+        if not isinstance(value, int) or value < 0:
             err_message = "The value is not a integer greater or equal than 0"
             raise PetriNetException(err_message)
         key_pair = (place, transition)
@@ -128,7 +128,7 @@ class PetriNet(object):
         if transition not in self._transitions:
             err_message = "Transition is not in T"
             raise PetriNetException(err_message)
-        if not isinstance(value, int) or value = 0:
+        if not isinstance(value, int) or value < 0:
             err_message = "The value is not a integer greater or equal than 0"
             raise PetriNetException(err_message)
         key_pair = (place, transition)
