@@ -38,7 +38,7 @@
   09-01-2016  ulisesma   Description in documentation
   31-01-2016  ulisesma   Fixing imports and adding JSON loading and dumping
                          functions
-
+  01-02-2016  ulisesma   Adding reachability graph algorithm
 
 """
 
@@ -49,7 +49,6 @@ from error_handling import PetriNetException
 from logger import LOG
 
 IO_KEY_PATTERN = "\('(.*)', '(.*)'\)"
-
 
 class PetriNet(object):
     """ Class to represent a general Petri Net system. """
@@ -70,6 +69,9 @@ class PetriNet(object):
             raise PetriNetException(err_message)
         if place not in self._places:
             self._places.append(place)
+            for transition in self._transitions:
+                self.change_input_flow(place, transition, 0)
+                self.change_output_flow(place, transition, 0)
             LOG.info("Place '{0}' added to P set".format(place))
         else:
             LOG.info("Place '{0}' already in P set".format(place))
@@ -85,6 +87,9 @@ class PetriNet(object):
             raise PetriNetException(err_message)
         if transition not in self._transitions:
             self._transitions.append(transition)
+            for place in self._places:
+                self.change_input_flow(place, transition, 0)
+                self.change_output_flow(place, transition, 0)
             LOG.info("Transition '{0}' added to T set".format(transition))
         else:
             LOG.info("Transition '{0}' already in T set".format(transition))
@@ -196,6 +201,7 @@ class PetriNet(object):
             raise PetriNetException(err_message)
         return in_dict
 
+
     def load_file(self, file_name):
         """
         Load a Petri Net model dumped into a JSON file with name 'file_name'.
@@ -210,3 +216,66 @@ class PetriNet(object):
         self._output = self._read_io_dict("O", in_dict["O"])
         msg = "Loading completed".format(file_name)
         LOG.info(msg)
+
+
+    def _fix_marking(self, m):
+        """
+        Fix 'm' to include the places not including on it with m(place) = 0.
+        If a place in 'm' is not included in '_places', this function will
+        fail with a Petri Net Exception.
+        """
+        for place in m.keys():
+            if place not in self._places:
+                err_message = "Invalid place in m: '{0}'".format(place)
+                raise PetriNetException(err_message)
+        for place in self._places:
+            if place not in m.keys():
+                m[place] = 0
+        return m
+
+
+    def _get_succesors(self, m):
+        """
+        """
+        succ = []
+        for transition in self._transitions:
+            m_1 = {}
+            compatible = True
+            for place in self._places:
+                key_pair = (place, transition)
+                if m[place] < self._input[key_pair]:
+                    compatible = False
+                    break
+                i_flow = self._input[key_pair]
+                o_flow = self._output[key_pair]
+                m_1[place] = m[place] - i_flow + o_flow
+            if compatible != False:
+                succ.append(m_1)
+        return succ
+
+
+    def reachability_set(self, m_0):
+        """
+        Get the reachability set of the model for marking 'm'.
+        """
+        m_0 = self._fix_marking(m_0)
+        msg = "Getting reachability set from '{0}'".format(m_0)
+        LOG.info(msg)
+        reach_graph = {str(m_0): []}
+        open_set = [m_0]
+        closed_set = []
+        while len(open_set):
+            m = open_set.pop(0)
+            if m in closed_set:
+                continue
+            m_key = str(m)
+            msg = "Adding new marking to reachability set: '{0}'".format(m)
+            LOG.info(msg)
+            reach_graph[m_key] = self._get_succesors(m)
+            open_set.extend(reach_graph[m_key])
+            closed_set.append(m)
+        msg = "Reachability set calculated from: '{0}'".format(m_0)
+        LOG.info(msg)
+        msg = "Reachability set size is: '{0}'".format(len(reach_graph))
+        LOG.info(msg)
+        return reach_graph
