@@ -16,5 +16,5 @@ model.add_transition("t")
 model.change_input_flow("a", "t", 1)
 model.change_output_flow("b", "t", 1)
 
-""" Saving file"""
+""" Saving file as JSON file"""
 model.save_file("example_pn.json")

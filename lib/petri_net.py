@@ -30,7 +30,7 @@
 ================================================================================
 
       Version: 0.1
-  Last Update: 31-01-2016
+  Last Update: 03-02-2016
 
   Date        Alias      Description
 --------------------------------------------------------------------------------
@@ -39,6 +39,7 @@
   31-01-2016  ulisesma   Fixing imports and adding JSON loading and dumping
                          functions
   01-02-2016  ulisesma   Adding reachability graph algorithm
+  03-02-2016  ulisesma   Function to export to LoLA model
 
 """
 
@@ -46,9 +47,25 @@ import json
 import re
 
 from error_handling import PetriNetException
+import logger
 from logger import LOG
 
 IO_KEY_PATTERN = "\('(.*)', '(.*)'\)"
+MARKING_PAIR = "{0}: {1}"
+LOLA_TEMPLATE = """
+PLACE
+    {0};
+
+MARKING
+    {1};
+
+{2}"""
+
+TRANSITION_TEMPLATE = """
+TRANSITION {0}
+    CONSUME {1};
+    PRODUCE {2};
+"""
 
 class PetriNet(object):
     """ Class to represent a general Petri Net system. """
@@ -176,7 +193,7 @@ class PetriNet(object):
         out_dict["O"] = self._get_io_dict("O")
         with open(file_name, "w+") as out_file:
           json.dump(out_dict, out_file)
-        msg = "Dumping completed".format(file_name)
+        msg = "Dumping completed"
         LOG.info(msg)
 
 
@@ -214,7 +231,7 @@ class PetriNet(object):
         self._transitions = in_dict["T"]
         self._input = self._read_io_dict("I", in_dict["I"])
         self._output = self._read_io_dict("O", in_dict["O"])
-        msg = "Loading completed".format(file_name)
+        msg = "Loading completed"
         LOG.info(msg)
 
 
@@ -236,6 +253,7 @@ class PetriNet(object):
 
     def _get_succesors(self, m):
         """
+        Get succesor markings of m.
         """
         succ = []
         for transition in self._transitions:
@@ -279,3 +297,78 @@ class PetriNet(object):
         msg = "Reachability set size is: '{0}'".format(len(reach_graph))
         LOG.info(msg)
         return reach_graph
+
+
+    def _get_place_list(self):
+        """
+        Get a list of places in LoLA format
+        """
+        initial_element = True
+        out_string = ""
+        for place in self._places:
+            if initial_element:
+                out_string = place
+            else:
+                out_string += ", " + place
+            initial_element = False
+        return out_string
+
+
+    def _get_marking_list(self, m_0):
+        """
+        Get the marking in in LoLA format
+        """
+        m_0 = self._fix_marking(m_0)
+        initial_element = True
+        out_string = ""
+        for place in self._places:
+            if initial_element:
+                out_string = MARKING_PAIR.format(place, m_0[place])
+            else:
+                out_string += ", " + MARKING_PAIR.format(place, m_0[place])
+            initial_element = False
+        return out_string
+
+
+    def _get_lola_flow(self, flow_function, transition):
+        """ Get the Input or Output flow of a transition """
+        initial_element = True
+        for place in self._places:
+            value = flow_function[(place, transition)]
+            if initial_element:
+                out_string = MARKING_PAIR.format(place, value)
+            else:
+                out_string += ", " + MARKING_PAIR.format(place, value)
+            initial_element = False
+        return out_string
+
+
+    def _get_transition_list(self):
+        """
+        Get the transition list in in LoLA format
+        """
+        out_string = ""
+        for transition in self._transitions:
+            consumers = self._get_lola_flow(self._input, transition)
+            producers = self._get_lola_flow(self._output, transition)
+            out_string += TRANSITION_TEMPLATE.format(transition, consumers, producers)
+        return out_string
+
+
+    def export_lola(self, m_0):
+        """
+        Export the Petri Net model as a LoLA file.
+        """
+        msg = "Exporting Petri Net to LoLA"
+        LOG.info(msg)
+
+        place_list = self._get_place_list()
+        marking_list = self._get_marking_list(m_0)
+        transition_list = self._get_transition_list()
+        lola_file = LOLA_TEMPLATE.format(place_list, marking_list, transition_list)
+        msg = "Export completed"
+        LOG.info(msg)
+        msg = "LoLA file is:"
+        LOG.info(msg)
+        LOG.info(lola_file)
+        return lola_file
