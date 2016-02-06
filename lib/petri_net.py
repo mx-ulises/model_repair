@@ -30,7 +30,7 @@
 ================================================================================
 
       Version: 0.1
-  Last Update: 03-02-2016
+  Last Update: 06-02-2016
 
   Date        Alias      Description
 --------------------------------------------------------------------------------
@@ -40,6 +40,7 @@
                          functions
   01-02-2016  ulisesma   Adding reachability graph algorithm
   03-02-2016  ulisesma   Function to export to LoLA model
+  06-02-2016  ulisesma   Removing unecesary import
 
 """
 
@@ -47,7 +48,6 @@ import json
 import re
 
 from error_handling import PetriNetException
-import logger
 from logger import LOG
 
 IO_KEY_PATTERN = "\('(.*)', '(.*)'\)"
