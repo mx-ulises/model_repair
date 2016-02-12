@@ -27,12 +27,13 @@
 ================================================================================
 
       Version: 0.1
-  Last Update: 07-02-2016
+  Last Update: 11-02-2016
 
   Date        Alias      Description
 --------------------------------------------------------------------------------
   06-02-2016  ulisesma   Initial file creation
   07-02-2016  ulisesma   Adding the unary operators classes
+  11-02-2016  ulisesma   Adding the binary operators classes
 
 """
 
@@ -169,12 +170,12 @@ class CTLExistNext(CTLFormula):
 
 
     def print_lola(self):
-        return "EX({0})".format(self.phi.print_lola())
+        return "EX({0})".format(self._phi.print_lola())
 
 
     def negate(self):
         """ Negate the current CTL formula """
-        return CTLNegatedExistNext(self.phi)
+        return CTLNegatedExistNext(self._phi)
 
 
 class CTLNegatedExistNext(CTLFormula):
@@ -189,12 +190,12 @@ class CTLNegatedExistNext(CTLFormula):
 
 
     def print_lola(self):
-        return "NOT EX({0})".format(self.phi.print_lola())
+        return "NOT EX({0})".format(self._phi.print_lola())
 
 
     def negate(self):
         """ Negate the current CTL formula """
-        return CTLExistNext(self.phi)
+        return CTLExistNext(self._phi)
 
 
 class CTLExistGlobally(CTLFormula):
@@ -209,12 +210,12 @@ class CTLExistGlobally(CTLFormula):
 
 
     def print_lola(self):
-        return "EG({0})".format(self.phi.print_lola())
+        return "EG({0})".format(self._phi.print_lola())
 
 
     def negate(self):
         """ Negate the current CTL formula """
-        return CTLNegatedExistGlobally(self.phi)
+        return CTLNegatedExistGlobally(self._phi)
 
 
 class CTLNegatedExistGlobally(CTLFormula):
@@ -229,9 +230,127 @@ class CTLNegatedExistGlobally(CTLFormula):
 
 
     def print_lola(self):
-        return "NOT EG({0})".format(self.phi.print_lola())
+        return "NOT EG({0})".format(self._phi.print_lola())
 
 
     def negate(self):
         """ Negate the current CTL formula """
-        return CTLExistGlobally(self.phi)
+        return CTLExistGlobally(self._phi)
+
+
+"""
+================================================================================
+                              BINARY OPERATORS
+================================================================================
+
+This section includes the following CTL binary operators:
+    * Exist Until
+    * Negated Exist Until
+    * And
+    * Negated And
+"""
+
+
+class CTLAnd(CTLFormula):
+    """ Class to represent the And operator """
+
+    def __init__(self, phi_1, phi_2):
+        if not isinstance(phi_1, CTLFormula):
+            err_message = "Phi provided is not an CTL formula"
+            raise CTLException(err_message)
+        if not isinstance(phi_2, CTLFormula):
+            err_message = "Phi provided is not an CTL formula"
+            raise CTLException(err_message)
+        self._phi_1 = phi_1
+        self._phi_2 = phi_2
+        LOG.info("New and predicate created")
+
+
+    def print_lola(self):
+        lola_phi_1 = self._phi_1.print_lola()
+        lola_phi_2 = self._phi_2.print_lola()
+        return "({0} AND {1})".format(lola_phi_1, lola_phi_2)
+
+
+    def negate(self):
+        """ Negate the current CTL formula """
+        return CTLNegatedAnd(self._phi_1, self._phi_2)
+
+
+class CTLNegatedAnd(CTLFormula):
+    """ Class to represent the Negated And operator """
+
+    def __init__(self, phi_1, phi_2):
+        if not isinstance(phi_1, CTLFormula):
+            err_message = "Phi provided is not an CTL formula"
+            raise CTLException(err_message)
+        if not isinstance(phi_2, CTLFormula):
+            err_message = "Phi provided is not an CTL formula"
+            raise CTLException(err_message)
+        self._phi_1 = phi_1
+        self._phi_2 = phi_2
+        LOG.info("New negated and predicate created")
+
+
+    def print_lola(self):
+        lola_phi_1 = self._phi_1.print_lola()
+        lola_phi_2 = self._phi_2.print_lola()
+        return "NOT ({0} AND {1})".format(lola_phi_1, lola_phi_2)
+
+
+    def negate(self):
+        """ Negate the current CTL formula """
+        return CTLAnd(self._phi_1, self._phi_2)
+
+
+
+class CTLExistUntil(CTLFormula):
+    """ Class to represent the Exsits Until operator """
+
+    def __init__(self, phi_1, phi_2):
+        if not isinstance(phi_1, CTLFormula):
+            err_message = "Phi provided is not an CTL formula"
+            raise CTLException(err_message)
+        if not isinstance(phi_2, CTLFormula):
+            err_message = "Phi provided is not an CTL formula"
+            raise CTLException(err_message)
+        self._phi_1 = phi_1
+        self._phi_2 = phi_2
+        LOG.info("New exist until predicate created")
+
+
+    def print_lola(self):
+        lola_phi_1 = self._phi_1.print_lola()
+        lola_phi_2 = self._phi_2.print_lola()
+        return "E({0} U {1})".format(lola_phi_1, lola_phi_2)
+
+
+    def negate(self):
+        """ Negate the current CTL formula """
+        return CTLNegatedExistUntil(self._phi_1, self._phi_2)
+
+
+class CTLNegatedExistUntil(CTLFormula):
+    """ Class to represent the Negated Exsits Until operator """
+
+    def __init__(self, phi_1, phi_2):
+        if not isinstance(phi_1, CTLFormula):
+            err_message = "Phi provided is not an CTL formula"
+            raise CTLException(err_message)
+        if not isinstance(phi_2, CTLFormula):
+            err_message = "Phi provided is not an CTL formula"
+            raise CTLException(err_message)
+        self._phi_1 = phi_1
+        self._phi_2 = phi_2
+        LOG.info("New negated exist until predicate created")
+
+
+    def print_lola(self):
+        lola_phi_1 = self._phi_1.print_lola()
+        lola_phi_2 = self._phi_2.print_lola()
+        return "NOT E({0} U {1})".format(lola_phi_1, lola_phi_2)
+
+
+    def negate(self):
+        """ Negate the current CTL formula """
+        return CTLExistUntil(self._phi_1, self._phi_2)
