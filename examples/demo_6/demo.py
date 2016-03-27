@@ -28,12 +28,18 @@ model.change_output_flow("q_active", "t_3", 1)
 model.change_input_flow("q_active", "t_4", 1)
 model.change_output_flow("q_iddle", "t_4", 1)
 
-""" Generates a LoLA file """
-print model.export_lola({"p_iddle": 1, "q_iddle": 1})
+""" Initial Marking """
+m_0 = {"p_iddle": 1, "q_iddle": 1}
 
 """ Generates CTL formula """
-a = ctl.CTLAtomicProposition("a")
-b = ctl.CTLAtomicProposition("b")
+a = ctl.CTLAtomicProposition("p_active")
+b = ctl.CTLAtomicProposition("q_active")
 
 phi_1 = ctl.CTLAnd(a, b)
-phi_2 = ctl.CTLNegatedExistGlobally(phi_1)
+TRUE = ctl.CTLTrue()
+phi_2 = ctl.CTLNegatedExistUntil(TRUE, phi_1)
+
+LOG.info("===================================================================")
+model.model_checking(m_0, phi_2)
+LOG.info("===================================================================")
+model.model_checking(m_0, phi_2.negate())

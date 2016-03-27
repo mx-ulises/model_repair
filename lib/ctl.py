@@ -27,13 +27,14 @@
 ================================================================================
 
       Version: 0.1
-  Last Update: 11-02-2016
+  Last Update: 27-03-2016
 
   Date        Alias      Description
 --------------------------------------------------------------------------------
   06-02-2016  ulisesma   Initial file creation
   07-02-2016  ulisesma   Adding the unary operators classes
   11-02-2016  ulisesma   Adding the binary operators classes
+  27-03-2016  ulisesma   Modifying some LoLA formulae
 
 """
 
@@ -117,7 +118,7 @@ class CTLAtomicProposition(CTLFormula):
 
 
     def print_lola(self):
-        return self._place
+        return "{0} > 0".format(self._place)
 
 
     def negate(self):
@@ -137,7 +138,7 @@ class CTLNegatedAtomicProposition(CTLFormula):
 
 
     def print_lola(self):
-        return "NOT {0}".format(self._place)
+        return "{0} == 0".format(self._place)
 
 
     def negate(self):
@@ -190,7 +191,7 @@ class CTLNegatedExistNext(CTLFormula):
 
 
     def print_lola(self):
-        return "NOT EX({0})".format(self._phi.print_lola())
+        return "NOT(EX({0}))".format(self._phi.print_lola())
 
 
     def negate(self):
@@ -230,7 +231,7 @@ class CTLNegatedExistGlobally(CTLFormula):
 
 
     def print_lola(self):
-        return "NOT EG({0})".format(self._phi.print_lola())
+        return "NOT(EG({0}))".format(self._phi.print_lola())
 
 
     def negate(self):
@@ -295,7 +296,7 @@ class CTLNegatedAnd(CTLFormula):
     def print_lola(self):
         lola_phi_1 = self._phi_1.print_lola()
         lola_phi_2 = self._phi_2.print_lola()
-        return "NOT ({0} AND {1})".format(lola_phi_1, lola_phi_2)
+        return "NOT({0} AND {1})".format(lola_phi_1, lola_phi_2)
 
 
     def negate(self):
@@ -348,7 +349,7 @@ class CTLNegatedExistUntil(CTLFormula):
     def print_lola(self):
         lola_phi_1 = self._phi_1.print_lola()
         lola_phi_2 = self._phi_2.print_lola()
-        return "NOT E({0} U {1})".format(lola_phi_1, lola_phi_2)
+        return "NOT(E({0} U {1}))".format(lola_phi_1, lola_phi_2)
 
 
     def negate(self):

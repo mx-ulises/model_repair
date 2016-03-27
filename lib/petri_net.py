@@ -30,7 +30,7 @@
 ================================================================================
 
       Version: 0.1
-  Last Update: 06-02-2016
+  Last Update: 27-03-2016
 
   Date        Alias      Description
 --------------------------------------------------------------------------------
@@ -41,12 +41,15 @@
   01-02-2016  ulisesma   Adding reachability graph algorithm
   03-02-2016  ulisesma   Function to export to LoLA model
   06-02-2016  ulisesma   Removing unecesary import
+  27-03-2016  ulisesma   Adding model checking capabilities with LoLA
 
 """
 
 import json
 import re
+import os
 
+from runner import run
 from error_handling import PetriNetException
 from logger import LOG
 
@@ -66,6 +69,12 @@ TRANSITION {0}
     CONSUME {1};
     PRODUCE {2};
 """
+
+def check_result(lola_output):
+    for line in lola_output.splitlines():
+        if line == "lola: result: no":
+            return False
+    return True
 
 class PetriNet(object):
     """ Class to represent a general Petri Net system. """
@@ -372,3 +381,40 @@ class PetriNet(object):
         LOG.info(msg)
         LOG.info(lola_file)
         return lola_file
+
+
+    def _create_lola_file(self, m_0):
+        """
+        Create a LoLA file of the model.
+        """
+        LOG.info("Creating LoLA temporal file")
+        lola_file_name = "__tmp_lola_model_.lola"
+        file_object = open(lola_file_name, "wb")
+        file_object.write(self.export_lola(m_0));
+        file_object.close()
+        LOG.info("LoLA temporal file created")
+        return lola_file_name
+
+
+    def _run_lola(self, lola_file_name, formula):
+        """
+        Run LoLA for a certain file and formula
+        """
+        LOG.info("Running LoLA in temporal file for formula:")
+        LOG.info("'{0}'".format(formula))
+        command = ["lola", lola_file_name, "--formula={0}".format(formula)]
+        (ret, _, stderr) = run(command)
+        return check_result(stderr)
+
+
+    def model_checking(self, m_0, formula):
+        """
+        Perform model checking of the petri net for a certain marking and
+        formula using lola.
+        """
+        lola_file_name = self._create_lola_file(m_0)
+        result = self._run_lola(lola_file_name, formula.print_lola())
+        LOG.info("Model Checking result: \"{0}\"".format(result))
+        os.remove(lola_file_name)
+        LOG.info("Removing LoLA temporal file")
+        return result
