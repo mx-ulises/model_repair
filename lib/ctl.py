@@ -35,11 +35,13 @@
   07-02-2016  ulisesma   Adding the unary operators classes
   11-02-2016  ulisesma   Adding the binary operators classes
   27-03-2016  ulisesma   Modifying some LoLA formulae
+  27-03-2016  ulisesma   Some classes specified as singleton
 
 """
 
 from error_handling import CTLException
 from logger import LOG
+from singleton import Singleton
 
 class CTLFormula(object):
     """ Class to represent a general CTL """
@@ -75,6 +77,7 @@ This section includes the following CTL terminal operators:
 
 class CTLTrue(CTLFormula):
     """ Class to represent the True operator """
+    __metaclass__ = Singleton
 
     def __init__(self):
         self._operator = "TRUE"
@@ -91,6 +94,7 @@ class CTLTrue(CTLFormula):
 
 
 class CTLFalse(CTLFormula):
+    __metaclass__ = Singleton
     """ Class to represent the False operator """
 
     def __init__(self):
@@ -105,6 +109,9 @@ class CTLFalse(CTLFormula):
     def negate(self):
         return CTLTrue()
 
+
+TRUE = CTLTrue()
+FALSE = CTLFalse()
 
 class CTLAtomicProposition(CTLFormula):
     """ Class to represent the Atomic Proposition operator """

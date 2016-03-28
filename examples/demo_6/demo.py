@@ -36,7 +36,7 @@ a = ctl.CTLAtomicProposition("p_active")
 b = ctl.CTLAtomicProposition("q_active")
 
 phi_1 = ctl.CTLAnd(a, b)
-TRUE = ctl.CTLTrue()
+TRUE = ctl.TRUE
 phi_2 = ctl.CTLNegatedExistUntil(TRUE, phi_1)
 
 LOG.info("===================================================================")
