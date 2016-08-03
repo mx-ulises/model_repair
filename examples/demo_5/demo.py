@@ -1,9 +1,9 @@
 import sys
-owfn_path = "/home/pollo/repos/model_repair/lib"
+owfn_path = "../../"
 sys.path.append(owfn_path)
 
-from logger import LOG
-import ctl
+from model_repair.logger import LOG
+import model_repair.ctl as ctl
 
 a = ctl.CTLAtomicProposition("a")
 b = ctl.CTLAtomicProposition("b")

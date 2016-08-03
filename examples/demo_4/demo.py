@@ -1,9 +1,9 @@
 import sys
-owfn_path = "/home/pollo/repos/model_repair/lib"
+owfn_path = "../../"
 sys.path.append(owfn_path)
 
-from logger import LOG
-from petri_net import PetriNet
+from model_repair.logger import LOG
+from model_repair.petri_net import PetriNet
 
 model = PetriNet()
 
