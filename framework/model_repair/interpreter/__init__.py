@@ -3,14 +3,8 @@
                               DESCRIPTION
 ================================================================================
 
-  This file contains the logger configuration. It should be inported as follows:
-
-      from mr_logger import LOG
-
-  and it should be used as:
-
-      LOG.info("This is an info message")
-      LOG.error("This is an error message")
+  This Package include the interpreters of CTL and Petri Net models required in
+  for the Model Repair Module.
 
 ================================================================================
                               MAINTAINERS
@@ -33,24 +27,10 @@
 ================================================================================
 
       Version: 0.1
-  Last Update: 09-01-2016
+  Last Update: 08-08-2016
 
   Date        Alias      Description
 --------------------------------------------------------------------------------
-  11-01-2016  ulisesma   Initial file creation
-
+  09-08-2016  ulisesma   Initial file creation
 
 """
-
-import logging
-
-FILE_NAME = "model_repair.log"
-TAGS = "[%(asctime)s][%(filename)s:%(lineno)s][%(levelname)s]"
-FORMAT = "{0}:%(message)s".format(TAGS)
-
-LOG = logging.getLogger('model_repair')
-hdlr = logging.FileHandler(FILE_NAME)
-formatter = logging.Formatter(FORMAT)
-hdlr.setFormatter(formatter)
-LOG.addHandler(hdlr)
-LOG.setLevel(logging.INFO)
