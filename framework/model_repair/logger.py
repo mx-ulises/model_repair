@@ -38,17 +38,18 @@
   Date        Alias      Description
 --------------------------------------------------------------------------------
   11-01-2016  ulisesma   Initial file creation
+  09-08-2016  ulisesma   Restoring original logger name
 
 
 """
 
 import logging
 
-FILE_NAME = "model_repair_2.log"
+FILE_NAME = "model_repair.log"
 TAGS = "[%(asctime)s][%(filename)s:%(lineno)s][%(levelname)s]"
 FORMAT = "{0}:%(message)s".format(TAGS)
 
-LOG = logging.getLogger('model_repair_2')
+LOG = logging.getLogger('model_repair')
 hdlr = logging.FileHandler(FILE_NAME)
 formatter = logging.Formatter(FORMAT)
 hdlr.setFormatter(formatter)
