@@ -33,7 +33,8 @@
   Date        Alias      Description
 --------------------------------------------------------------------------------
   09-08-2016  ulisesma   Initial file creation
-  13-08-2016  ulisesma   Place Lists and other sub-parsers finished
+  13-08-2016  ulisesma   Place Lists and other sub-parsers
+  14-08-2016  ulisesma   Marking List and other sub-parsers
 
 """
 
@@ -41,7 +42,6 @@ from sets import Set
 
 from model_repair.error_handling import PetriNetInterpreterException
 from model_repair.logger import LOG
-from __builtin__ import str
 
 RESERVED_WORDS = ["PLACE", "MARKING"]
 RESERVED_WORDS = Set(RESERVED_WORDS)
@@ -151,8 +151,27 @@ def _nodeident(file_object):
     raise PetriNetInterpreterException(err_message)
 
 def _marking_list(file_object):
-    #TODO: Implement routines to get the marking_list objects
+    LOG.info("[START] Getting Marking List")
+    marking = _marking(file_object)
+    separator = _get_object(file_object)
+    while separator == ",":
+        marking = _marking(file_object)
+        separator = _get_object(file_object)
+    LOG.info("[END] Getting Marking List")
+    #TODO: Create a Place list object and return
     pass
+
+
+def _marking(file_object):
+    LOG.info("[START] Getting Marking")
+    nodeident = _nodeident(file_object)
+    separator = _get_object(file_object)
+    if separator == ":":
+        number = _get_object(file_object)
+        if not isinstance(nodeident, Number):
+            err_message = ERROR_MESSAGE_TEMPLATE.format("Number", number)
+            raise PetriNetInterpreterException(err_message)
+    LOG.info("[END] Getting Marking")
 
 
 def _transition(file_object):
