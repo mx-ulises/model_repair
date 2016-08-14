@@ -28,11 +28,12 @@
 ================================================================================
 
       Version: 0.1
-  Last Update: 09-08-2016
+  Last Update: 13-08-2016
 
   Date        Alias      Description
 --------------------------------------------------------------------------------
   09-08-2016  ulisesma   Initial file creation
+  13-08-2016  ulisesma   Place Lists and other sub-parsers finished
 
 """
 
@@ -40,6 +41,7 @@ from sets import Set
 
 from model_repair.error_handling import PetriNetInterpreterException
 from model_repair.logger import LOG
+from __builtin__ import str
 
 RESERVED_WORDS = ["PLACE", "MARKING"]
 RESERVED_WORDS = Set(RESERVED_WORDS)
@@ -69,7 +71,7 @@ def _net(file_object):
 
     separator = _get_object(file_object)
     if separator != ";":
-        err_message = ERROR_MESSAGE_TEMPLATE.format(";", reserved)
+        err_message = ERROR_MESSAGE_TEMPLATE.format(";", separator)
         raise PetriNetInterpreterException(err_message)
 
     transitions = []
@@ -85,13 +87,68 @@ def _net(file_object):
         x = _transition(file_object)
 
     LOG.info("[END] Processing new LoLA Petri net file")
+    #TODO: Create a Petri Net object and return
     pass
 
 
 def _place_lists(file_object):
-    #TODO: Implement routines to get the place_lists objects
+    LOG.info("[START] Getting Place lists")
+    capacity = _capacity(file_object)
+    place_list = _place_list(file_object)
+    separator = _get_object(file_object)
+    if separator != ";":
+        err_message = ERROR_MESSAGE_TEMPLATE.format(";", separator)
+        raise PetriNetInterpreterException(err_message)
+    capacity = _capacity(file_object)
+    while capacity:
+        place_list = _place_list(file_object)
+        separator = _get_object(file_object)
+        if separator != ";":
+            err_message = ERROR_MESSAGE_TEMPLATE.format(";", separator)
+            raise PetriNetInterpreterException(err_message)
+        capacity = _capacity(file_object)
+    LOG.info("[END] Getting Place lists")
+    #TODO: Create a Place lists object and return
     pass
 
+
+def _capacity(file_object):
+    LOG.info("[START] Getting capacity")
+    reserved = _get_object(file_object)
+    if reserved != "SAFE":
+        err_message = ERROR_MESSAGE_TEMPLATE.format("SAFE", reserved)
+        raise PetriNetInterpreterException(err_message)
+    number = _get_object(file_object)
+    if isinstance(number, Number):
+        err_message = ERROR_MESSAGE_TEMPLATE.format("number", number)
+        raise PetriNetInterpreterException(err_message)
+    separator = _get_object(file_object)
+    if reserved != ":":
+        err_message = ERROR_MESSAGE_TEMPLATE.format(":", separator)
+        raise PetriNetInterpreterException(err_message)
+    LOG.info("[END] Getting capacity")
+    #TODO: Create a capacity object and return
+    pass
+
+def _place_list(file_object):
+    LOG.info("[START] Getting Place list")
+    nodeident = _nodeident(file_object)
+    separator = _get_object(file_object)
+    while separator == ",":
+        nodeident = _nodeident(file_object)
+        separator = _get_object(file_object)
+    LOG.info("[END] Getting Place list")
+    #TODO: Create a Place list object and return
+    pass
+
+def _nodeident(file_object):
+    LOG.info("[START] Getting Node identifier")
+    nodeident = _get_object(file_object)
+    if isinstance(nodeident, Number) or isinstance(nodeident, Identifier):
+        LOG.info("[END] Getting Node identifier")
+        return nodeident
+    err_message = ERROR_MESSAGE_TEMPLATE.format("Identifier", nodeident)
+    raise PetriNetInterpreterException(err_message)
 
 def _marking_list(file_object):
     #TODO: Implement routines to get the marking_list objects
