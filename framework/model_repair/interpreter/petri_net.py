@@ -28,13 +28,14 @@
 ================================================================================
 
       Version: 0.1
-  Last Update: 13-08-2016
+  Last Update: 14-08-2016
 
   Date        Alias      Description
 --------------------------------------------------------------------------------
   09-08-2016  ulisesma   Initial file creation
   13-08-2016  ulisesma   Place Lists and other sub-parsers
   14-08-2016  ulisesma   Marking List and other sub-parsers
+  14-08-2016  ulisesma   Transitions and other sub-parsers
 
 """
 
@@ -172,8 +173,77 @@ def _marking(file_object):
             err_message = ERROR_MESSAGE_TEMPLATE.format("Number", number)
             raise PetriNetInterpreterException(err_message)
     LOG.info("[END] Getting Marking")
+    #TODO: Create a Marking object and return
+    pass
 
 
 def _transition(file_object):
-    #TODO: Implement routines to get the transition objects
+    LOG.info("[START] Getting Transition")
+    reserved = _get_object(file_object)
+    if reserved != "TRANSITION":
+        err_message = ERROR_MESSAGE_TEMPLATE.format("TRANSITION", reserved)
+        raise PetriNetInterpreterException(err_message)
+    nodeident = _nodeident(file_object)
+    fairness = _fairness(file_object)
+    reserved = _get_object(file_object)
+    if reserved != "CONSUME":
+        err_message = ERROR_MESSAGE_TEMPLATE.format("CONSUME", reserved)
+        raise PetriNetInterpreterException(err_message)
+    arc_list = _arc_list(file_object)
+    separator = _get_object(file_object)
+    if separator != ";":
+        err_message = ERROR_MESSAGE_TEMPLATE.format(";", separator)
+        raise PetriNetInterpreterException(err_message)
+    reserved = _get_object(file_object)
+    if reserved != "PRODUCE":
+        err_message = ERROR_MESSAGE_TEMPLATE.format("PRODUCE", reserved)
+        raise PetriNetInterpreterException(err_message)
+    arc_list = _arc_list(file_object)
+    separator = _get_object(file_object)
+    if separator != ";":
+        err_message = ERROR_MESSAGE_TEMPLATE.format(";", separator)
+        raise PetriNetInterpreterException(err_message)
+    LOG.info("[END] Getting Transition")
+    #TODO: Create a Transition object and return
+    pass
+
+
+def _fairness(file_object):
+    LOG.info("[START] Getting Fairness")
+    reserved = _get_object(file_object)
+    if reserved != "STRONG" and reserved != "WEAK":
+        err_message = ERROR_MESSAGE_TEMPLATE.format("STRONG' or 'WEAK", reserved)
+        raise PetriNetInterpreterException(err_message)
+    reserved = _get_object(file_object)
+    if reserved != "FAIR":
+        err_message = ERROR_MESSAGE_TEMPLATE.format("FAIR", reserved)
+        raise PetriNetInterpreterException(err_message)
+    LOG.info("[END] Getting Fairness")
+    #TODO: Create a Fairness object and return
+    pass
+
+
+def _arc_list(file_object):
+    LOG.info("[START] Getting Arc List")
+    arc = _arc(file_object)
+    separator = _get_object(file_object)
+    while separator == ",":
+        arc = _arc(file_object)
+        separator = _get_object(file_object)
+    LOG.info("[END] Getting Arc List")
+    #TODO: Create a Arc List object and return
+    pass
+
+
+def _arc(file_object):
+    LOG.info("[START] Getting Arc")
+    nodeident = _nodeident(file_object)
+    separator = _get_object(file_object)
+    if separator == ":":
+        number = _get_object(file_object)
+        if not isinstance(nodeident, Number):
+            err_message = ERROR_MESSAGE_TEMPLATE.format("Number", number)
+            raise PetriNetInterpreterException(err_message)
+    LOG.info("[END] Getting Arc")
+    #TODO: Create a Arc object and return
     pass
