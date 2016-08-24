@@ -27,11 +27,13 @@
 ================================================================================
 
       Version: 0.1
-  Last Update: 22-08-2016
+  Last Update: 24-08-2016
 
   Date        Alias      Description
 --------------------------------------------------------------------------------
   22-08-2016  ulisesma   Initial file creation
+  24-08-2016  ulisesma   Get object function to get a valid string using the
+                         DFA model
 
 
 
@@ -48,6 +50,7 @@ class StateEnum(object):
     q_ident = 4
 
 class InputEnum(object):
+    invalid = -1
     separator = 0
     digit = 1
     dash = 2
@@ -63,11 +66,11 @@ Deterministic Finite Automata (DFA) table to manage string parsing
 --------------------------------------------------------------------------------
 """
 
-_q_0 =   {IE.separator: SE.q_sep, IE.dash: SE.q_1,     IE.digit: SE.q_num,   IE.character: SE.q_ident}
-_sep =   {IE.separator: SE.q_err, IE.dash: SE.q_err,   IE.digit: SE.q_err,   IE.character: SE.q_err  }
-_q_1 =   {IE.separator: SE.q_err, IE.dash: SE.q_ident, IE.digit: SE.q_num,   IE.character: SE.q_ident}
-_num =   {IE.separator: SE.q_err, IE.dash: SE.q_ident, IE.digit: SE.q_num,   IE.character: SE.q_ident}
-_ident = {IE.separator: SE.q_err, IE.dash: SE.q_ident, IE.digit: SE.q_ident, IE.character: SE.q_ident}
+_q_0 =   {IE.separator: SE.q_sep, IE.dash: SE.q_1,     IE.digit: SE.q_num,   IE.character: SE.q_ident, IE.invalid: SE.q_err}
+_sep =   {IE.separator: SE.q_err, IE.dash: SE.q_err,   IE.digit: SE.q_err,   IE.character: SE.q_err,   IE.invalid: SE.q_err}
+_q_1 =   {IE.separator: SE.q_err, IE.dash: SE.q_ident, IE.digit: SE.q_num,   IE.character: SE.q_ident, IE.invalid: SE.q_err}
+_num =   {IE.separator: SE.q_err, IE.dash: SE.q_ident, IE.digit: SE.q_num,   IE.character: SE.q_ident, IE.invalid: SE.q_err}
+_ident = {IE.separator: SE.q_err, IE.dash: SE.q_ident, IE.digit: SE.q_ident, IE.character: SE.q_ident, IE.invalid: SE.q_err}
 
 DFA_TABLE = {SE.q_0: _q_0, SE.q_sep: _sep, SE.q_1: _q_1, SE.q_num: _num, SE.q_ident: _ident}
 
@@ -96,3 +99,23 @@ CHAR_INPUT['-'] = InputEnum.dash
 for x in xrange(ord("z") - ord("a") + 1):
     CHAR_INPUT[chr(ord("A") + x)] = InputEnum.character
     CHAR_INPUT[chr(ord("a") + x)] = InputEnum.character
+
+
+"""
+--------------------------------------------------------------------------------
+Functions
+--------------------------------------------------------------------------------
+"""
+
+def get_object(input_str):
+    i = 0
+    state = SE.q_0
+    out_str = ""
+    while i < len(input_str) and state != SE.q_err:
+        symbol = input_str[i]
+        state = DFA_TABLE[state][CHAR_INPUT[symbol]]
+        out_str += symbol
+        i += 1
+    if state == SE.q_err:
+        out_str = out_str[:-1]
+    return out_str
